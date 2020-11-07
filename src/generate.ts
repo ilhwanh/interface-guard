@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-const runes = new Array(26).fill(0).map((_, i) => Buffer.from(["A".charCodeAt(0) + i]).toString())
+const runes = new Array(3).fill(0).map((_, i) => Buffer.from(["A".charCodeAt(0) + i]).toString())
 
 function indent(raw: string, level: number) {
   return " ".repeat(level) + raw.replace(/\n/g, "\n" + " ".repeat(level))
@@ -174,31 +174,20 @@ function generateIsObject() {
   return `${signatures}\n${functionHead} {\n${indent(body, 2)}\n}`
 }
 
-function generateIsVariantOverloading(numParameter: number, optional?: boolean) {
-  return generateIsObjectOverloading(numParameter, optional)
-    .replace("export function isObject<", "export function isVariant<Variant, ")
-    .replace(">(", ">(variant: Variant, ")
+function generatePrimitive(typeName: string) {
+  return `export function is${typeName.slice(0, 1).toUpperCase() + typeName.slice(1)}(x: any): x is ${typeName} {
+  return typeof x === "${typeName}"
+}`
 }
 
-function generateIsVariantBodyClause(numParameter: number) {
-  return generateIsObjectBodyClause(numParameter)
-    .replace("return typeof x === \"object\" && ", "return typeof x === \"object\" && x.type === variant && ")
-}
-
-function generateIsVariant() {
-  const signatures = runes
-    .map((rune, i) => generateIsVariantOverloading(i + 1))
-    .join("\n");
-  const functionHead = generateIsVariantOverloading(runes.length, true);
-  const body = runes
-    .map((_, i) => generateIsVariantBodyClause(runes.length - i))
-    .join(" else ");
-  return `${signatures}\n${functionHead} {\n${indent(body, 2)}\n}`
+function generatePrimitives() {
+  return ["undefined", "number", "string", "boolean"].map(typeName => generatePrimitive(typeName))
+    .join("\n\n")
 }
 
 const importStatement = `import {Guard, LazyGuard} from "."`
 
+fs.writeFileSync("src/guard/isPrimitive.gen.ts", Buffer.from(generatePrimitives()))
 fs.writeFileSync("src/guard/isTuple.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsTuple()))
 fs.writeFileSync("src/guard/isUnion.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsUnion()))
 fs.writeFileSync("src/guard/isObject.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsObject()))
-fs.writeFileSync("src/guard/isVariant.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsVariant()))

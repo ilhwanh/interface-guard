@@ -1,12 +1,13 @@
 {
   "name": "interface-guard",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "A runtime interface guard and interface deriver which conforms the type system.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "start": "ts-node --ignore false src/generate.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "mocha -r ts-node/register src/**/*.test.ts"
   },
   "keywords": [
     "interface",
