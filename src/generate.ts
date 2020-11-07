@@ -174,6 +174,31 @@ function generateIsObject() {
   return `${signatures}\n${functionHead} {\n${indent(body, 2)}\n}`
 }
 
-fs.writeFileSync("src/guard/isTuple.gen.ts", Buffer.from(generateIsTuple()))
-fs.writeFileSync("src/guard/isUnion.gen.ts", Buffer.from(generateIsUnion()))
-fs.writeFileSync("src/guard/isObject.gen.ts", Buffer.from(generateIsObject()))
+function generateIsVariantOverloading(numParameter: number, optional?: boolean) {
+  return generateIsObjectOverloading(numParameter, optional)
+    .replace("export function isObject<", "export function isVariant<Variant, ")
+    .replace(">(", ">(variant: Variant, ")
+}
+
+function generateIsVariantBodyClause(numParameter: number) {
+  return generateIsObjectBodyClause(numParameter)
+    .replace("return typeof x === \"object\" && ", "return typeof x === \"object\" && x.type === variant && ")
+}
+
+function generateIsVariant() {
+  const signatures = runes
+    .map((rune, i) => generateIsVariantOverloading(i + 1))
+    .join("\n");
+  const functionHead = generateIsVariantOverloading(runes.length, true);
+  const body = runes
+    .map((_, i) => generateIsVariantBodyClause(runes.length - i))
+    .join(" else ");
+  return `${signatures}\n${functionHead} {\n${indent(body, 2)}\n}`
+}
+
+const importStatement = `import {Guard, LazyGuard} from "."`
+
+fs.writeFileSync("src/guard/isTuple.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsTuple()))
+fs.writeFileSync("src/guard/isUnion.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsUnion()))
+fs.writeFileSync("src/guard/isObject.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsObject()))
+fs.writeFileSync("src/guard/isVariant.gen.ts", importStatement + "\n\n" + Buffer.from(generateIsVariant()))

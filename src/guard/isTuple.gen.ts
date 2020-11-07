@@ -1,4 +1,4 @@
-import {Guard, LazyGuard} from "./index";
+import {Guard, LazyGuard} from "."
 
 export function isTuple<A>(fa: LazyGuard<A>): Guard<[A]>
 export function isTuple<A, B>(fa: LazyGuard<A>, fb: LazyGuard<B>): Guard<[A, B]>

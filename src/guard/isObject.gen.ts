@@ -1,4 +1,4 @@
-import {Guard, LazyGuard} from "./index";
+import {Guard, LazyGuard} from "."
 
 export function isObject<KA extends string, VA>(ka: KA, fa: LazyGuard<VA>): Guard<{ [ka in KA]: VA }>
 export function isObject<KA extends string, VA, KB extends string, VB>(ka: KA, fa: LazyGuard<VA>, kb: KB, fb: LazyGuard<VB>): Guard<{ [ka in KA]: VA } & { [kb in KB]: VB }>

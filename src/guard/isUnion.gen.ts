@@ -1,4 +1,4 @@
-import {Guard, LazyGuard} from "./index";
+import {Guard, LazyGuard} from "."
 
 export function isUnion<A>(fa: LazyGuard<A>): Guard<A>
 export function isUnion<A, B>(fa: LazyGuard<A>, fb: LazyGuard<B>): Guard<A | B>
